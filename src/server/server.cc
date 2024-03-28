@@ -175,7 +175,9 @@ int main() {
   mu.readMaps({getpid()});
 
   sleep(1);
+  if (!quiet_progress) {
   cout << "pid=" << getpid() << endl;
+  }
   ostringstream cmd;
 
   for (const char *fname : {"status", "stat", "statm", "smaps", "maps"}) {

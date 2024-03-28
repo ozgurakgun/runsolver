@@ -245,10 +245,12 @@ public:
   }
 
   void dumpProcessTree(ostream &out) {
+    if (!quiet_progress) {
     cout << "\n[startup+" << elapsed << " s]";
     if (treeHasAllProcesses)
       cout << '*';
     cout << endl;
+    }
 
     // cout << "nbRoots=" << roots.size() << endl; // ???
     dumpGlobalData(out);
@@ -268,6 +270,7 @@ public:
 
   void dumpCPUTimeAndVSize(ostream &out, float currentCPUTime,
                            long currentVSize, long currentMemory) {
+    if (!quiet_progress) {
     if (completedCPUTime != 0)
       out << "Current cumulated CPU time of completed processes: "
           << completedCPUTime << " s\n";
@@ -278,6 +281,7 @@ public:
 
     out << "Current children cumulated memory: " << currentMemory << " KiB"
         << endl;
+    }
   }
 
   /**
@@ -390,9 +394,11 @@ protected:
   }
 
   void dumpGlobalData(ostream &out) {
+    if (!quiet_progress) { 
     out << "/proc/loadavg: " << loadavgLine << "\n";
     out << "/proc/meminfo: memFree=" << memFree << "/" << memTotal
         << " swapFree=" << swapFree << "/" << swapTotal << endl;
+    }
   }
 
   void currentCPUTimeRec(pid_t pid, float &userTime, float &systemTime) {

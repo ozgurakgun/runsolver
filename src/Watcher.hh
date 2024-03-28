@@ -213,7 +213,9 @@ public:
   void setDelayBeforeKill(int seconds) { delayBeforeKill = seconds; }
 
   void watchPID(pid_t pid) {
+    if (!quiet_progress) {
     cout << "solver pid=" << pid << ", runsolver pid=" << getpid() << endl;
+    }
 
     childpid = pid;
     solverIsRunning = true;
@@ -265,6 +267,7 @@ public:
       float elapsed =
           tv.tv_sec + tv.tv_usec / 1E6 - starttv.tv_sec - starttv.tv_usec / 1E6;
 
+      if (!quiet_progress) {
       cout_mutex.lock();
       cout << "\n[startup+" << elapsed << " s]\n"
            << "# the end of solver process " << wait4result
@@ -275,20 +278,26 @@ public:
         cout << "# this solver process was not waited by its parent and was "
                 "adopted by runsolver\n";
       cout_mutex.unlock();
+      }
     }
 
     solverIsRunning = false;
     gettimeofday(&stoptv, NULL);
 
+    if (!quiet_progress) {
     cout << endl << "Solver just ended." << endl;
+    }
 
     watcherThread.join();
 
+    if (!quiet_progress) {
     cout << "Dumping a history of the last processes samples" << endl;
 
     procHistory.dumpHistory(cout, lastDisplayedElapsedTime);
     cout << endl;
+    }
 
+    if (!quiet_progress) {
     if (WIFEXITED(childstatus))
       cout << "Child status: " << WEXITSTATUS(childstatus) << endl;
     else if (WIFSIGNALED(childstatus)) {
@@ -307,6 +316,7 @@ public:
            << getSignalName(WSTOPSIG(childstatus)) << endl;
     } else {
       cout << "Child ended for unknown reason !!" << endl;
+    }
     }
 
     float wcTime;           // Elapsed real seconds
@@ -329,6 +339,7 @@ public:
     // solverCPUTime already contains completedCPUTime
     solverCPUTime = solverUserTime + solverSystemTime;
 
+    if (!quiet_progress) {
     cout << "Real time (s): " << wcTime << endl;
     cout << "CPU time (s): " << solverCPUTime << endl;
     cout << "CPU user time (s): " << solverUserTime << endl;
@@ -339,6 +350,7 @@ public:
          << maxVSize << endl;
     cout << "Max. memory (cumulated for all children) (KiB): " << maxMemory
          << endl;
+    }
 
     if (cleanupAllIPCQueues || cleanupSolverOwnIPCQueues)
       cleanupIPCMsgQueues();
@@ -346,6 +358,7 @@ public:
     struct rusage r;
     getrusage(RUSAGE_CHILDREN, &r);
 
+    if (!quiet_progress) {
     cout << endl;
     cout << "getrusage(RUSAGE_CHILDREN,...) data:" << endl;
     cout << "user time used= " << r.ru_utime.tv_sec + r.ru_utime.tv_usec * 1E-6
@@ -367,8 +380,10 @@ public:
     cout << "voluntary context switches= " << r.ru_nvcsw << endl;
     cout << "involuntary context switches= " << r.ru_nivcsw << endl;
     cout << endl;
+    }
 
     if (completedCPUTime != 0) {
+      if (!quiet_progress) {
       cout << endl;
       cout << "# summary of solver processes directly reported to runsolver:\n";
       if (!completedChildrenList.empty()) {
@@ -381,6 +396,7 @@ public:
       cout << "#   total CPU user time (s): " << completedUserTime << endl;
       cout << "#   total CPU system time (s): " << completedSystemTime << endl
            << endl;
+      }
     }
 
     ExecutionSummary execSummary;
@@ -586,17 +602,21 @@ public:
       pt.sendSignalNow(SIGKILL);
     }
 
+    if (!quiet_progress) {
     cout << "??? end of watcher thread" << endl;
+    }
 
 #ifdef debug
     struct rusage r;
     getrusage(RUSAGE_THREAD, &r);
+    if (!quiet_progress) {
     cout << "the watcher thread used "
          << r.ru_utime.tv_sec + r.ru_utime.tv_usec * 1E-6
          << " second user time and "
          << r.ru_stime.tv_sec + r.ru_stime.tv_usec * 1E-6
          << " second system time\n"
          << endl;
+    }
 #endif
   }
 

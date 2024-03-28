@@ -122,12 +122,16 @@ private:
     void setLimit(rlim_t lim) { limit = lim; }
 
     void output(ostream &out) {
+      if (!quiet_progress) {
       out << "Enforcing " << name << ": " << limit << " " << unit << endl;
+      }
     }
 
     void outputEnforcedLimit(ostream &out) {
+      if (!quiet_progress) {
       out << "Current " << name << ": " << getEnforcedLimit() << " " << unit
           << endl;
+      }
     }
 
     void enforceLimit() {
@@ -604,7 +608,9 @@ public:
 
     struct utsname unameData;
     uname(&unameData);
+    if (!quiet_progress) {
     cout << unameData.sysname << " " << unameData.release << endl;
+    }
 
     {
       int res = prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
@@ -717,7 +723,9 @@ public:
 
       StackSizeLimit stackLimit;
       stackLimit.outputEnforcedLimit(cout);
+      if (!quiet_progress) {
       cout << endl;
+      }
 
       // create a new process group (for several reasons, see for
       // example ProcessTree::rootProcessEnded())
@@ -867,25 +875,27 @@ public:
       // for the solver end)
       watcher.watchPID(childpid);
 
+      if (!quiet_progress) {
       if (timeStamping) {
         // wait for the time stamper thread to output the last lines
         cout << "??? join timestamper begins" << endl;
         pthread_join(timeStamperTID, NULL);
         cout << "??? join timestamper ends" << endl;
       }
-
       cout << "??? end of timestamper thread" << endl; //???
+      }
 
       // print the resources used by runsolver itself
       struct rusage r;
       getrusage(RUSAGE_SELF, &r);
+      if (!quiet_progress) {
       cout << "runsolver used " << r.ru_utime.tv_sec + r.ru_utime.tv_usec * 1E-6
            << " second user time and "
            << r.ru_stime.tv_sec + r.ru_stime.tv_usec * 1E-6
            << " second system time\n"
            << endl;
-
       cout << "The end" << endl;
+      }
     }
   }
 
@@ -908,6 +918,7 @@ void numaInfo() {
   int nbNodes = numa_num_configured_nodes();
   long mem, memFree;
 
+  if (!quiet_progress) {
   cout << "NUMA information:\n";
   cout << "  number of nodes: " << nbNodes << endl;
   for (int i = 0; i < nbNodes; ++i) {
@@ -928,6 +939,7 @@ void numaInfo() {
   }
 
   cout << endl;
+  }
 }
 #endif
 
@@ -960,6 +972,7 @@ static struct option longopts[] = {
     {"bin-var", required_argument, NULL, 1009},
     {"version", no_argument, NULL, 1010},
     {"watchdog", required_argument, NULL, 1011},
+    {"quiet", no_argument, NULL, 1012},
     {NULL, no_argument, NULL, 0}};
 
 void usage(char *prgname) {
@@ -1083,6 +1096,7 @@ void usage(char *prgname) {
 }
 
 void printVersion() {
+  if (!quiet_progress) {
   cout << "runsolver version " << version << " (svn: " << SVNVERSION
        << ") Copyright (C) 2010-2013 Olivier ROUSSEL\n\n"
        << "This program is distributed in the hope that it will be useful,\n"
@@ -1090,6 +1104,7 @@ void printVersion() {
        << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
        << "GNU General Public License for more details.\n"
        << endl;
+  }
 }
 
 void watchdog(int watchdogDelay) {
@@ -1198,6 +1213,9 @@ int main(int argc, char **argv) {
       case 1011:
         watchdogDelay = atoi(optarg);
         break;
+      case 1012:
+        quiet_progress = true;
+        break;
       default:
         usage(argv[0]);
       }
@@ -1214,15 +1232,19 @@ int main(int argc, char **argv) {
     if (optind == argc)
       usage(argv[0]);
 
+    if (!quiet_progress) {
     cout << "command line: " << cmdline << endl << endl;
+    }
 
     vector<unsigned short int> cores;
 
     getAllocatedCoresByProcessorOrder(cores);
 
+    if (!quiet_progress) {
     cout << "running on " << cores.size() << " cores: ";
     printAllocatedCores(cout, cores);
     cout << "\n\n";
+    }
 
     if (vsizeLimit)
       solver.setVSizeLimit(vsizeLimit, vsizeSoftToHardLimit);

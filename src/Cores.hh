@@ -6,6 +6,8 @@
 
 using namespace std;
 
+bool quiet_progress = false;
+
 /**
  * get the list of cores available on the system
  *

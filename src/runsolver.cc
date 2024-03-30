@@ -875,15 +875,14 @@ public:
       // for the solver end)
       watcher.watchPID(childpid);
 
-      if (!quiet_progress) {
       if (timeStamping) {
         // wait for the time stamper thread to output the last lines
-        cout << "??? join timestamper begins" << endl;
+        if (!quiet_progress) cout << "??? join timestamper begins" << endl;
         pthread_join(timeStamperTID, NULL);
-        cout << "??? join timestamper ends" << endl;
+        if (!quiet_progress) cout << "??? join timestamper ends" << endl;
       }
-      cout << "??? end of timestamper thread" << endl; //???
-      }
+      if (!quiet_progress) cout << "??? end of timestamper thread" << endl; //???
+
 
       // print the resources used by runsolver itself
       struct rusage r;
@@ -916,7 +915,7 @@ void numaInfo() {
     return;
 
   int nbNodes = numa_num_configured_nodes();
-  long mem, memFree;
+  long long mem, memFree;
 
   if (!quiet_progress) {
   cout << "NUMA information:\n";

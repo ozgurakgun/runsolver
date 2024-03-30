@@ -108,12 +108,10 @@ public:
 
     valid = false;
 
-    if (!quiet_progress) {
     if (tid)
       snprintf(fileName, sizeof(fileName), "/proc/%d/task/%d/stat", pid, tid);
     else
       snprintf(fileName, sizeof(fileName), "/proc/%d/stat", pid);
-    }
 
     if ((file = fopen(fileName, "r")) != NULL) {
       struct stat info;
@@ -183,9 +181,7 @@ public:
     }
 
     if (!tid) {
-      if (!quiet_progress) {
       snprintf(fileName, sizeof(fileName), "/proc/%d/statm", pid);
-      }
 
       if ((file = fopen(fileName, "r")) != NULL) {
         if (fgets(statmLine, sizeof(statmLine), file) == NULL) {
@@ -211,9 +207,7 @@ public:
 
     if (!tid) {
       // read /proc/%d/status
-      if (!quiet_progress) {
       snprintf(fileName, sizeof(fileName), "/proc/%d/status", pid);
-      }
       ifstream in(fileName);
       string tmp;
       int nbFieldsToRead = 2;

@@ -267,18 +267,20 @@ public:
       float elapsed =
           tv.tv_sec + tv.tv_usec / 1E6 - starttv.tv_sec - starttv.tv_usec / 1E6;
 
-      if (!quiet_progress) {
       cout_mutex.lock();
+      if (!quiet_progress) {
       cout << "\n[startup+" << elapsed << " s]\n"
            << "# the end of solver process " << wait4result
            << " was just reported to runsolver\n"
            << "# cumulated CPU time of all completed processes:  user=" << user
            << " s, system=" << syst << " s" << endl;
+      }
       if (wait4result != childpid)
+        if (!quiet_progress) {
         cout << "# this solver process was not waited by its parent and was "
                 "adopted by runsolver\n";
+        }
       cout_mutex.unlock();
-      }
     }
 
     solverIsRunning = false;
@@ -297,26 +299,27 @@ public:
     cout << endl;
     }
 
-    if (!quiet_progress) {
     if (WIFEXITED(childstatus))
-      cout << "Child status: " << WEXITSTATUS(childstatus) << endl;
+      if (!quiet_progress) cout << "Child status: " << WEXITSTATUS(childstatus) << endl;
     else if (WIFSIGNALED(childstatus)) {
       int sig = WTERMSIG(childstatus);
 
+      if (!quiet_progress)
       cout << "Child ended because it received signal " << sig << " ("
            << getSignalName(sig) << ")" << endl;
 
 #ifdef WCOREDUMP
       if (WCOREDUMP(childstatus))
-        cout << "Child dumped core" << endl;
+        if (!quiet_progress) cout << "Child dumped core" << endl;
 #endif
 
     } else if (WIFSTOPPED(childstatus)) {
+      if (!quiet_progress)
       cout << "Child was stopped by signal "
            << getSignalName(WSTOPSIG(childstatus)) << endl;
     } else {
+      if (!quiet_progress)
       cout << "Child ended for unknown reason !!" << endl;
-    }
     }
 
     float wcTime;           // Elapsed real seconds

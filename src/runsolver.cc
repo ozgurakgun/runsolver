@@ -915,7 +915,7 @@ void numaInfo() {
     return;
 
   int nbNodes = numa_num_configured_nodes();
-  long long mem, memFree;
+  long mem, memFree;
 
   if (!quiet_progress) {
   cout << "NUMA information:\n";
